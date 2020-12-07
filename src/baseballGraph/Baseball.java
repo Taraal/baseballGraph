@@ -2,6 +2,7 @@ package baseballGraph;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -11,11 +12,13 @@ public class Baseball {
 
 	private final class Graphe{
 
-		double CAP_MAX = 999999999;
+		int CAP_MAX = Integer.MAX_VALUE;
 		ArrayList<SommetEquipe> sommetsEquipe;
 		ArrayList<SommetPaire> sommetsPaire;
+		ArrayList<Arete> aretes;
 		Sommet source;
 		Sommet puits;
+		Team equipeCourante;
 
 		public class Arete{
 			public Sommet debut;
@@ -28,6 +31,8 @@ public class Baseball {
 				this.fin = fin;
 				this.capacite = capacite;
 			}
+
+			public Arete(){}
 		}
 
 		public class Sommet{
@@ -63,8 +68,8 @@ public class Baseball {
 				if ( !(o instanceof SommetPaire)){return false;}
 				SommetPaire sp = (SommetPaire)o;
 				return (
-						(this.equipe1.name.equals(sp.equipe1.name) && this.equipe2.name.equals(sp.equipe2.name))
-						|| (this.equipe2.name.equals(sp.equipe1.name) && this.equipe1.name.equals(sp.equipe2.name))
+						(this.equipe1.id == sp.equipe1.id && this.equipe2.id == sp.equipe2.id)
+						|| (this.equipe2.id == sp.equipe1.id && this.equipe1.id == sp.equipe2.id)
 				);
 			}
 			// Nécessaire pour equals()
@@ -79,11 +84,7 @@ public class Baseball {
 
 		}
 
-		public Graphe(ArrayList<Team> equipes, Team k){
-			equipes.remove(k);
-			this.sommetsPaire = new ArrayList<SommetPaire>();
-			this.sommetsEquipe = new ArrayList<SommetEquipe>();
-
+		private void generationSommets(ArrayList<Team> equipes){
 
 			for (Team i: equipes){
 				System.out.println(i);
@@ -98,9 +99,56 @@ public class Baseball {
 				}
 			}
 
-			for (SommetPaire sommet : this.sommetsPaire){
+		}
+
+		private void generationAretes(){
+
+			// Aretes source => sommetsPaire
+			for (SommetPaire sp: sommetsPaire){
+				int capacite = sp.equipe1.matchToPlayAgainst.get(sp.equipe2.id - 1);
+
+				Arete a = new Arete(source, sp, capacite);
+				this.aretes.add(a);
+			}
+
+			// Aretes sommetsEquipe => puits
+			for (SommetEquipe se : sommetsEquipe){
+				int capacite = equipeCourante.wins + equipeCourante.matchsToPlay - se.equipe.wins;
+				Arete a = new Arete(se, puits, capacite);
+				this.aretes.add(a);
+			}
+
+			// Aretes sommetsPaire => sommetsEquipe
+			for (SommetPaire sp: sommetsPaire){
+				for (SommetEquipe se: sommetsEquipe){
+					if (sp.equipe2.id == se.equipe.id || sp.equipe1.id == se.equipe.id){
+						Arete a = new Arete(sp, se, CAP_MAX);
+						this.aretes.add(a);
+					}
+				}
+			}
+		}
+
+
+		public void printAretes(){
+			for (Arete a : aretes){
+				System.out.println("Debut : " + a.debut);
+				System.out.println("Fin : " + a.fin);
+				System.out.println("Cap : " + a.capacite);
+				System.out.println(" ");
 
 			}
+		}
+		public Graphe(ArrayList<Team> equipes, Team k){
+			equipeCourante = k;
+			equipes.remove(k);
+			this.sommetsPaire = new ArrayList<SommetPaire>();
+			this.sommetsEquipe = new ArrayList<SommetEquipe>();
+			this.aretes = new ArrayList<Arete>();
+
+			generationSommets(equipes);
+
+			generationAretes();
 		}
 	}
 
@@ -193,8 +241,9 @@ public class Baseball {
 	
 	public static void main(String[] args) {
 		Baseball b = new Baseball("/home/sylouan/Downloads/teams.txt");
-		//b.printTeams();
+		b.printTeams();
 		b.graphe.printNodes();
+		b.graphe.printAretes();
 	}
 
 }
