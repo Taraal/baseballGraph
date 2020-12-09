@@ -192,4 +192,19 @@ public class Graphe {
         return  sommets.get(t).excedent;
     }
 
+    public boolean equipeEliminee(){
+        boolean eliminee = false;
+
+        for(Arete a: aretes){
+            if(a.debut == 0){
+                if (a.capacite != a.flot){
+                    eliminee = true;
+                }
+            }
+        }
+
+        return eliminee;
+
+    }
+
 }

@@ -95,15 +95,16 @@ public class Baseball {
 	public void testEliminationEquipe(Team k){
 
 		ArrayList<Team> equipes = this.getTeams();
-		this.graphe = new Graphe(equipes, equipes.get(0));
+		this.graphe = new Graphe(equipes, k);
 		System.out.println("Flot Maximal : " + graphe.flotMax);
+		System.out.println("Equipe eliminee : " + this.graphe.equipeEliminee());
 	}
 
 	public static void main(String[] args) {
-		Baseball b = new Baseball("/home/sylouan/Downloads/test100.txt");
+		Baseball b = new Baseball("/home/sylouan/Downloads/teams.txt");
 		b.printTeams();
 
-		b.testEliminationEquipe(b.getTeams().get(0));
+		b.testEliminationEquipe(b.getTeams().get(3));
 
 
 	}
