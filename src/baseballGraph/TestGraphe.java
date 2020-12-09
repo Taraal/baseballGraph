@@ -2,32 +2,20 @@ package baseballGraph;
 
 import java.util.ArrayList;
 
-public class Graphe {
-
+public class TestGraphe {
     int flotMax;
-    Baseball.Team equipeCourante;
+
 
     ArrayList<Sommet> sommets = new ArrayList<Sommet>();
     ArrayList<Arete> aretes = new ArrayList<Arete>();
 
-    public Graphe(ArrayList<Baseball.Team> equipes, Baseball.Team equipeCourante){
-
-        this.equipeCourante = equipeCourante;
-        equipes.remove(equipeCourante);
+    public TestGraphe(){
 
         // Création de la source
         sommets.add(new Sommet(0, 0));
 
-        for(Baseball.Team i : equipes){
-            sommets.add(new SommetEquipe(i, 0, 0));
-        }
-        for (Baseball.Team i : equipes){
-            for (Baseball.Team j : equipes){
-                SommetPaire sp = new SommetPaire(i, j, 0, 0);
-                if (i != j && !sommets.contains(sp)) {
-                    this.sommets.add(new SommetPaire(i, j, 0, 0));
-                }
-            }
+        for(int i = 0; i < 4; i++){
+            sommets.add(new Sommet(0, 0));
         }
 
         // Création du puits
@@ -40,38 +28,17 @@ public class Graphe {
     }
 
     public void generationAretes(){
-        int source = 0;
-        int puits = sommets.size() - 1;
-
-        for(int i = 1; i < sommets.size(); i++){
-
-            // Les sommets Paire sont reliés à la source par un arc de capacité g_{ij}
-            if (sommets.get(i) instanceof SommetPaire){
-                int capacite = ((SommetPaire) sommets.get(i)).equipe1.matchToPlayAgainst.get(((SommetPaire) sommets.get(i)).equipe2.id - 1);
-                this.addArete(source, i, capacite);
-            }
-            // Les sommets Equipe sont reliés au puits par un arc de capacité (w_k + g_k - w_i)
-            else if (sommets.get(i) instanceof SommetEquipe){
-                int capacite = equipeCourante.wins + equipeCourante.matchsToPlay - ((SommetEquipe) sommets.get(i)).equipe.wins;
-                this.addArete(i, puits, capacite);
-            }
-
-            if(sommets.get(i) instanceof SommetPaire){
-                for (int j = 1; j < sommets.size(); j++){
-                    if (sommets.get(j) instanceof SommetEquipe){
-
-                        // Les sommets Paires sont reliés à chaque sommet Equipe correspondant avec une capacité infinie
-                        if(
-                                ((SommetPaire) sommets.get(i)).equipe2.id == ((SommetEquipe) sommets.get(j)).equipe.id
-                            || ((SommetPaire) sommets.get(i)).equipe1.id == ((SommetEquipe) sommets.get(j)).equipe.id
-                        ){
-                            this.addArete(i, j, Integer.MAX_VALUE);
-                        }
-                    }
-                }
-            }
-
-        }
+        int s = 0;
+        int t = sommets.size() - 1;
+        this.addArete(s, 1, 16);
+        this.addArete(s,2, 13);
+        this.addArete(1,2, 10);
+        this.addArete(1,3, 12);
+        this.addArete(3,2, 9);
+        this.addArete(2,4, 14);
+        this.addArete(4, 3, 7);
+        this.addArete(3, t, 20);
+        this.addArete(4,t, 4);
 
     }
 
@@ -204,5 +171,6 @@ public class Graphe {
         }
         return eliminee;
     }
+
 
 }

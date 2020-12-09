@@ -104,7 +104,9 @@ public class Baseball {
 		Baseball b = new Baseball("/home/sylouan/Downloads/teams.txt");
 		b.printTeams();
 
-		b.testEliminationEquipe(b.getTeams().get(3));
+		b.testEliminationEquipe(b.getTeams().get(0));
+		TestGraphe tg = new TestGraphe();
+		System.out.println("Flot Max : " + tg.flotMax);
 
 
 	}
