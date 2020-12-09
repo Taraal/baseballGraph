@@ -4,31 +4,108 @@ import java.util.ArrayList;
 
 public class Graphe {
 
-    int taille;
+    int flotMax;
+    Baseball.Team equipeCourante;
 
-    ArrayList<Sommet> sommets;
-    ArrayList<Arete> aretes;
+    ArrayList<Sommet> sommets = new ArrayList<Sommet>();
+    ArrayList<Arete> aretes = new ArrayList<Arete>();
+
+    public Graphe(ArrayList<Baseball.Team> equipes, Baseball.Team equipeCourante){
+
+        this.equipeCourante = equipeCourante;
+        equipes.remove(equipeCourante);
+
+        // Création de la source
+        sommets.add(new Sommet(0, 0));
+
+        for(Baseball.Team i : equipes){
+            sommets.add(new SommetEquipe(i, 0, 0));
+        }
+        for (Baseball.Team i : equipes){
+            for (Baseball.Team j : equipes){
+                SommetPaire sp = new SommetPaire(i, j, 0, 0);
+                if (i != j && !sommets.contains(sp)) {
+                    this.sommets.add(new SommetPaire(i, j, 0, 0));
+                }
+            }
+        }
+
+        // Création du puits
+        sommets.add(new Sommet(0,0));
+
+        generationAretes();
+
+        this.flotMax = flotMaximal(0, sommets.size() - 1);
+
+    }
+
+    public void generationAretes(){
+        int source = 0;
+        int puits = sommets.size() - 1;
+
+        for(int i = 1; i < sommets.size(); i++){
+
+            // Les sommets Paire sont reliés à la source par un arc de capacité g_{ij}
+            if (sommets.get(i) instanceof SommetPaire){
+                int capacite = ((SommetPaire) sommets.get(i)).equipe1.matchToPlayAgainst.get(((SommetPaire) sommets.get(i)).equipe2.id - 1);
+                this.addArete(source, i, capacite);
+            }
+            // Les sommets Equipe sont reliés au puits par un arc de capacité (w_k + g_k - w_i)
+            else if (sommets.get(i) instanceof SommetEquipe){
+                int capacite = equipeCourante.wins + equipeCourante.matchsToPlay - ((SommetEquipe) sommets.get(i)).equipe.wins;
+                this.addArete(i, puits, capacite);
+            }
+
+            if(sommets.get(i) instanceof SommetPaire){
+                for (int j = 1; j < sommets.size(); j++){
+                    if (sommets.get(j) instanceof SommetEquipe){
+
+                        // Les sommets Paires sont reliés à chaque sommet Equipe correspondant avec une capacité infinie
+                        if(
+                                ((SommetPaire) sommets.get(i)).equipe2.id == ((SommetEquipe) sommets.get(j)).equipe.id
+                            || ((SommetPaire) sommets.get(i)).equipe1.id == ((SommetEquipe) sommets.get(j)).equipe.id
+                        ){
+                            this.addArete(i, j, Integer.MAX_VALUE);
+                        }
+                    }
+                }
+            }
+
+        }
+
+    }
 
     boolean pousser(int u){
+        // Pour chaque arete
         for(int i = 0; i < aretes.size(); i++){
+
+            // Si l'arete commence bien par le sommet désiré
             if (aretes.get(i).debut == u){
+                // Si son flot est déjà égal à sa capacité, on passe à l'arete suivante
                 if (aretes.get(i).flot == aretes.get(i).capacite){
                     continue;
                 }
 
+                // Si le sommet de début est plus élevé que le sommet de fin
                 if(sommets.get(u).hauteur > sommets.get(aretes.get(i).fin).hauteur){
 
-                    int flow = Math.min(aretes.get(i).capacite - aretes.get(i).flot,
+                    // On prend le minimum entre l'excédent de U et le flot restant de l'arete
+                    int flot = Math.min(aretes.get(i).capacite - aretes.get(i).flot,
                             sommets.get(u).excedent);
 
-                    sommets.get(u).excedent -= flow;
+                    // Le sommet U vide son excedent
+                    sommets.get(u).excedent -= flot;
 
-                    sommets.get(aretes.get(i).fin).excedent += flow;
+                    // Le sommet V se remplit
+                    sommets.get(aretes.get(i).fin).excedent += flot;
 
-                    aretes.get(i).flot += flow;
+                    // L'arc se remplit
+                    aretes.get(i).flot += flot;
 
-                    updateReversedFlow(i, flow);
+                    // On met à jour le graphe résiduel
+                    grapheResiduel(i, flot);
 
+                    // Tant que l'on peut pousser, on retourne Vrai
                     return true;
                 }
             }
@@ -37,19 +114,25 @@ public class Graphe {
     }
 
     void elever(int u){
-        int hauteur_max = Integer.MAX_VALUE;
+        int hauteur_min = Integer.MAX_VALUE;
 
+        // On cherche la hauteur minimum des voisins
         for (int i = 0; i < aretes.size(); i++){
+
+
             if(aretes.get(i).debut == u){
 
+                // Si elle est déjà à sa capacité max, on l'ignore
                 if(aretes.get(i).flot == aretes.get(i).capacite){
                     continue;
                 }
 
-                if(sommets.get(aretes.get(i).fin).hauteur < hauteur_max){
-                    hauteur_max = sommets.get(aretes.get(i).fin).hauteur;
+                // On met à jour la hauteur minimum
+                if(sommets.get(aretes.get(i).fin).hauteur < hauteur_min){
+                    hauteur_min = sommets.get(aretes.get(i).fin).hauteur;
 
-                    sommets.get(u).hauteur = hauteur_max + 1;
+                    // On élève le sommet u
+                    sommets.get(u).hauteur = hauteur_min + 1;
                 }
             }
         }
@@ -68,35 +151,30 @@ public class Graphe {
         }
     }
 
-    int sommetDebordant(ArrayList<Sommet> sommets){
+    int sommetDebordant(ArrayList<Sommet> sommets, int s, int t){
         for(int i = 1; i<sommets.size(); i++){
-            if (sommets.get(i).excedent > 0){
+            if (i != s && i != t && sommets.get(i).excedent > 0){
                 return i;
             }
         }
         return -1;
     }
 
-    void updateReversedFlow(int i, int flow){
+    void grapheResiduel(int i, int flot){
+        // On crée une arete dans le graphe résiduel quand un flot a été ajouté à l'arete i
+
         int u = aretes.get(i).fin;
         int v = aretes.get(i).debut;
 
         for (int j = 0; j < aretes.size(); j++){
             if (aretes.get(j).fin == v && aretes.get(j).debut == u){
-                aretes.get(j).flot -= flow;
+                aretes.get(j).flot -= flot;
                 return;
             }
         }
 
-        Arete e = new Arete(0, flow, u, v);
+        Arete e = new Arete(-flot, 0, u, v);
         aretes.add(e);
-    }
-
-    public Graphe(int taille){
-        this.taille = taille;
-        for (int i = 0; i < taille; i++){
-            sommets.add(new Sommet(0,0));
-        }
     }
 
     public void addArete(int u, int v, int capacity){
@@ -105,13 +183,13 @@ public class Graphe {
 
     int flotMaximal(int s, int t){
         preflot(s);
-        while(sommetDebordant(sommets) != -1){
-            int u = sommetDebordant(sommets);
+        while(sommetDebordant(sommets, s, t ) != -1){
+            int u = sommetDebordant(sommets, s, t);
             if (!pousser(u)){
                 elever(u);
             }
         }
-        return  sommets.get(sommets.size() - 1).excedent;
+        return  sommets.get(t).excedent;
     }
 
 }

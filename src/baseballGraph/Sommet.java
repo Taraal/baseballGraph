@@ -8,4 +8,6 @@ class Sommet{
         this.hauteur = hauteur;
         this.excedent = excedent;
     }
+
+    public Sommet(){}
 }

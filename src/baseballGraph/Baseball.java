@@ -47,8 +47,6 @@ public class Baseball {
 			System.out.println("An error occurred.");
 			e.printStackTrace();
 		}
-		
-		
 	}
 	
 	
@@ -94,9 +92,20 @@ public class Baseball {
 		
 	}
 
+	public void testEliminationEquipe(Team k){
+
+		ArrayList<Team> equipes = this.getTeams();
+		this.graphe = new Graphe(equipes, equipes.get(0));
+		System.out.println("Flot Maximal : " + graphe.flotMax);
+	}
+
 	public static void main(String[] args) {
-		Baseball b = new Baseball("/home/sylouan/Downloads/teams.txt");
+		Baseball b = new Baseball("/home/sylouan/Downloads/test100.txt");
 		b.printTeams();
+
+		b.testEliminationEquipe(b.getTeams().get(0));
+
+
 	}
 
 }
