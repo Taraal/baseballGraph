@@ -1,16 +1,15 @@
 package baseballGraph;
 
 public class Arete{
-    public Sommet debut;
-    public Sommet fin;
-    public int capacite;
-    public int flot;
+    int flot;
+    int capacite;
+    int debut;
+    int fin;
 
-    public Arete(Sommet debut, Sommet fin, int capacite){
+    public Arete(int flot, int capacite, int debut, int fin){
+        this.flot = flot;
+        this.capacite = capacite;
         this.debut = debut;
         this.fin = fin;
-        this.capacite = capacite;
     }
-
-    public Arete(){}
 }

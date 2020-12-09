@@ -1,9 +1,11 @@
 package baseballGraph;
 
-import java.util.ArrayList;
-
-public class Sommet{
+class Sommet{
     int hauteur;
-    ArrayList<Arete> aretes;
-    public Sommet(){};
+    int excedent;
+
+    public Sommet(int hauteur, int excedent){
+        this.hauteur = hauteur;
+        this.excedent = excedent;
+    }
 }

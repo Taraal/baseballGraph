@@ -2,7 +2,6 @@ package baseballGraph;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -41,7 +40,7 @@ public class Baseball {
 			}
 			sc.close();
 
-			this.graphe = new Graphe(this.getTeams(), this.getTeams().get(0));
+
 
 		} 
 		catch (FileNotFoundException e) {
@@ -98,8 +97,6 @@ public class Baseball {
 	public static void main(String[] args) {
 		Baseball b = new Baseball("/home/sylouan/Downloads/teams.txt");
 		b.printTeams();
-		b.graphe.printNodes();
-		b.graphe.printAretes();
 	}
 
 }
