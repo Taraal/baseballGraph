@@ -10,11 +10,13 @@ public class Graphe {
     ArrayList<Sommet> sommets = new ArrayList<Sommet>();
     ArrayList<Arete> aretes = new ArrayList<Arete>();
 
-    public Graphe(ArrayList<Baseball.Team> equipes, Baseball.Team equipeCourante){
+    public Graphe(ArrayList<Baseball.Team> grapheequipes, Baseball.Team equipeCourante){
 
         this.equipeCourante = equipeCourante;
-        equipes.remove(equipeCourante);
 
+        ArrayList<Baseball.Team> equipes = new ArrayList<Baseball.Team>();
+        equipes.addAll(grapheequipes);
+        equipes.remove(equipeCourante);
         // Création de la source
         sommets.add(new Sommet(0, 0));
 
@@ -183,7 +185,8 @@ public class Graphe {
 
     int flotMaximal(int s, int t){
         preflot(s);
-        while(sommetDebordant(sommets, s, t ) != -1){
+        long startTime = System.currentTimeMillis();
+        while(sommetDebordant(sommets, s, t ) != -1 && (System.currentTimeMillis()-startTime)<100){
             int u = sommetDebordant(sommets, s, t);
             if (!pousser(u)){
                 elever(u);
@@ -197,7 +200,7 @@ public class Graphe {
 
         for(Arete a: aretes){
             if(a.debut == 0){
-                if (a.capacite != a.flot){
+                if (a.capacite != a.flot || this.flotMax < 0){
                     eliminee = true;
                 }
             }

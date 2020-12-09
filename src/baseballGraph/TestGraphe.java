@@ -29,7 +29,7 @@ public class TestGraphe {
 
     public void generationAretes(){
         int s = 0;
-        int t = sommets.size() - 1;
+        int t = sommets.size();
         this.addArete(s, 1, 16);
         this.addArete(s,2, 13);
         this.addArete(1,2, 10);
@@ -38,7 +38,7 @@ public class TestGraphe {
         this.addArete(2,4, 14);
         this.addArete(4, 3, 7);
         this.addArete(3, t, 20);
-        this.addArete(4,t, 4);
+        this.addArete(4, t, 4);
 
     }
 

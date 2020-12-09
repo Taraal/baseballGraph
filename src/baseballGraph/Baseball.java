@@ -97,16 +97,25 @@ public class Baseball {
 		ArrayList<Team> equipes = this.getTeams();
 		this.graphe = new Graphe(equipes, k);
 		System.out.println("Flot Maximal : " + graphe.flotMax);
-		System.out.println("Equipe eliminee : " + this.graphe.equipeEliminee());
+		System.out.println(k.name+ " eliminee : " + this.graphe.equipeEliminee());
+	}
+
+	public void testEliminationToutesEquipes(){
+
+		for (Team t: this.getTeams()){
+			testEliminationEquipe(t);
+		}
+
 	}
 
 	public static void main(String[] args) {
-		Baseball b = new Baseball("/home/sylouan/Downloads/teams.txt");
+		Baseball b = new Baseball("/home/sylouan/Downloads/JDD1.txt");
 		b.printTeams();
 
-		b.testEliminationEquipe(b.getTeams().get(0));
-		TestGraphe tg = new TestGraphe();
-		System.out.println("Flot Max : " + tg.flotMax);
+		//b.testEliminationEquipe(b.getTeams().get(8));
+		b.testEliminationToutesEquipes();
+		// TestGraphe tg = new TestGraphe();
+		// System.out.println("Flot Max : " + tg.flotMax);
 
 
 	}
