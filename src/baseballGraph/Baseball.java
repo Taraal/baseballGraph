@@ -109,7 +109,11 @@ public class Baseball {
 	}
 
 	public static void main(String[] args) {
-		Baseball b = new Baseball("/home/sylouan/Downloads/JDD1.txt");
+		System.out.println(System.getProperty("user.dir"));
+		System.out.println("Entrez le nom du fichier à scanner");
+		Scanner input = new Scanner(System.in);
+		String name = input.nextLine();
+		Baseball b = new Baseball("./tests/" + name +".txt");
 		b.printTeams();
 
 		//b.testEliminationEquipe(b.getTeams().get(8));
