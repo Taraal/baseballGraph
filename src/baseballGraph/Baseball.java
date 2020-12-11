@@ -105,8 +105,8 @@ public class Baseball {
 
 		ArrayList<Team> equipes = this.getTeams();
 		this.graphe = new Graphe(equipes, k);
-		System.out.println("Flot Maximal : " + graphe.flotMax);
-		//System.out.println(k.name+ " eliminee : " + this.graphe.equipeEliminee());
+		System.out.println("Flot Maximal pour " + k.name + " : " + graphe.flotMax);
+
 		k.eliminee = this.graphe.equipeEliminee();
 	}
 
@@ -121,18 +121,23 @@ public class Baseball {
 	public void testDeuxEliminationToutesEquipes(){
 
 		for(int i = 0; i < this.getTeams().size(); i++){
+			// On se doit de tester au minimum une équipe
 			if (i == 0){
 				testEliminationEquipe(getTeams().get(i));
 			}
+			// Si l'équipe précédente a été éliminée, on peut déduire que l'équipe actuelle le sera aussi
 			else if (this.getTeams().get(i-1).eliminee == true){
 				System.out.println(getTeams().get(i-1).name + " a été éliminée, donc : ");
 				getTeams().get(i).eliminee = true;
 			}
+			// Sinon, on teste son élimination
 			else{
 				testEliminationEquipe(getTeams().get(i));
 			}
 
 			System.out.println(getTeams().get(i).name + " éliminée : " + getTeams().get(i).eliminee);
+
+			System.out.println(" ");
 		}
 
 	}
