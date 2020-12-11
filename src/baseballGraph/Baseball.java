@@ -125,6 +125,7 @@ public class Baseball {
 				testEliminationEquipe(getTeams().get(i));
 			}
 			else if (this.getTeams().get(i-1).eliminee == true){
+				System.out.println(getTeams().get(i-1) + " a été éliminée, donc : ");
 				getTeams().get(i).eliminee = true;
 			}
 			else{
