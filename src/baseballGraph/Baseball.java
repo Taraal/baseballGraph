@@ -141,7 +141,6 @@ public class Baseball {
 		Scanner input = new Scanner(System.in);
 		String name = input.nextLine();
 		Baseball b = new Baseball("tests/" + name +".txt");
-		b.printTeams();
 
 		//b.testEliminationEquipe(b.getTeams().get(3));
 		b.testDeuxEliminationToutesEquipes();
