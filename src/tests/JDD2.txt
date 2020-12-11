@@ -1,0 +1,5 @@
+4
+1 Atlanta 83 8 -1 1 6 1
+2 Philadelphia 80 3 1 -1 0 2
+3 New-York 78 6 6 0 -1 0
+4 Montreal 77 3 1 2 0 -1
