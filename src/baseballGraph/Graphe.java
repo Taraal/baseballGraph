@@ -4,8 +4,9 @@ import java.util.ArrayList;
 
 public class Graphe {
 
-    int flotMax;
+    int flotMax = 0;
     Baseball.Team equipeCourante;
+    boolean valid;
 
     ArrayList<Sommet> sommets = new ArrayList<Sommet>();
     ArrayList<Arete> aretes = new ArrayList<Arete>();
@@ -35,13 +36,14 @@ public class Graphe {
         // Création du puits
         sommets.add(new Sommet(0,0));
 
-        generationAretes();
+        this.valid = generationAretes();
 
-        this.flotMax = flotMaximal(0, sommets.size() - 1);
-
+        if(valid){
+            this.flotMax = flotMaximal(0, sommets.size() - 1);
+        }
     }
 
-    public void generationAretes(){
+    public boolean generationAretes(){
         int source = 0;
         int puits = sommets.size() - 1;
 
@@ -50,12 +52,18 @@ public class Graphe {
             // Les sommets Paire sont reliés à la source par un arc de capacité g_{ij}
             if (sommets.get(i) instanceof SommetPaire){
                 int capacite = ((SommetPaire) sommets.get(i)).equipe1.matchToPlayAgainst.get(((SommetPaire) sommets.get(i)).equipe2.id - 1);
-                this.addArete(source, i, capacite);
+                if(capacite >= 0 ) {
+                    this.addArete(source, i, capacite);
+                }
+                else return false;
             }
             // Les sommets Equipe sont reliés au puits par un arc de capacité (w_k + g_k - w_i)
             else if (sommets.get(i) instanceof SommetEquipe){
                 int capacite = equipeCourante.wins + equipeCourante.matchsToPlay - ((SommetEquipe) sommets.get(i)).equipe.wins;
-                this.addArete(i, puits, capacite);
+                if(capacite >= 0) {
+                    this.addArete(i, puits, capacite);
+                }
+                else return false;
             }
 
             if(sommets.get(i) instanceof SommetPaire){
@@ -74,7 +82,7 @@ public class Graphe {
             }
 
         }
-
+        return true;
     }
 
     boolean pousser(int u){
@@ -186,7 +194,7 @@ public class Graphe {
     int flotMaximal(int s, int t){
         preflot(s);
         long startTime = System.currentTimeMillis();
-        while(sommetDebordant(sommets, s, t ) != -1 && (System.currentTimeMillis()-startTime)<100){
+        while(sommetDebordant(sommets, s, t ) != -1){
             int u = sommetDebordant(sommets, s, t);
             if (!pousser(u)){
                 elever(u);
@@ -196,16 +204,21 @@ public class Graphe {
     }
 
     public boolean equipeEliminee(){
-        boolean eliminee = false;
 
-        for(Arete a: aretes){
-            if(a.debut == 0){
-                if (a.capacite != a.flot || this.flotMax < 0){
-                    eliminee = true;
+        if(valid) {
+            boolean eliminee = false;
+            for(Arete a: aretes){
+                if(a.debut == 0){
+                    if (a.capacite != a.flot){
+                        eliminee = true;
+                    }
                 }
             }
+            return eliminee;
+        }else {
+            System.out.println("Graphe non valide");
+            return true;
         }
-        return eliminee;
     }
 
 }

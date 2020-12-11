@@ -3,6 +3,8 @@ package baseballGraph;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Scanner;
 
 public class Baseball {
@@ -40,7 +42,14 @@ public class Baseball {
 			}
 			sc.close();
 
-
+			Collections.sort(this.teams, new Comparator<Team>() {
+				@Override
+				public int compare(Team a, Team b) {
+					return (a.wins + a.matchsToPlay) > (b.wins + b.matchsToPlay) ? - 1
+							: (a.wins + a.matchsToPlay) < (b.wins + b.matchsToPlay) ? 1
+							: 0;
+				}
+			});
 
 		} 
 		catch (FileNotFoundException e) {
@@ -67,6 +76,7 @@ public class Baseball {
 		public String name;
 		public int wins;
 		public int matchsToPlay;
+		public boolean eliminee = false;
 		
 		public ArrayList<Integer> matchToPlayAgainst = new ArrayList<>();
 		
@@ -88,8 +98,7 @@ public class Baseball {
 			}
 			System.out.println(" ");
 		}
-		
-		
+
 	}
 
 	public void testEliminationEquipe(Team k){
@@ -97,7 +106,8 @@ public class Baseball {
 		ArrayList<Team> equipes = this.getTeams();
 		this.graphe = new Graphe(equipes, k);
 		System.out.println("Flot Maximal : " + graphe.flotMax);
-		System.out.println(k.name+ " eliminee : " + this.graphe.equipeEliminee());
+		//System.out.println(k.name+ " eliminee : " + this.graphe.equipeEliminee());
+		k.eliminee = this.graphe.equipeEliminee();
 	}
 
 	public void testEliminationToutesEquipes(){
@@ -108,18 +118,34 @@ public class Baseball {
 
 	}
 
+	public void testDeuxEliminationToutesEquipes(){
+
+		for(int i = 0; i < this.getTeams().size(); i++){
+			if (i == 0){
+				testEliminationEquipe(getTeams().get(i));
+			}
+			else if (this.getTeams().get(i-1).eliminee == true){
+				getTeams().get(i).eliminee = true;
+			}
+			else{
+				testEliminationEquipe(getTeams().get(i));
+			}
+
+			System.out.println(getTeams().get(i).name + " éliminée : " + getTeams().get(i).eliminee);
+		}
+
+	}
+
 	public static void main(String[] args) {
-		System.out.println(System.getProperty("user.dir"));
 		System.out.println("Entrez le nom du fichier à scanner");
 		Scanner input = new Scanner(System.in);
 		String name = input.nextLine();
-		Baseball b = new Baseball("./tests/" + name +".txt");
+		Baseball b = new Baseball("tests/" + name +".txt");
 		b.printTeams();
 
-		//b.testEliminationEquipe(b.getTeams().get(8));
-		b.testEliminationToutesEquipes();
-		// TestGraphe tg = new TestGraphe();
-		// System.out.println("Flot Max : " + tg.flotMax);
+		//b.testEliminationEquipe(b.getTeams().get(3));
+		b.testDeuxEliminationToutesEquipes();
+
 
 
 	}
