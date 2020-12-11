@@ -19,7 +19,6 @@ public class Baseball {
 
 			int nbEquipes = Integer.parseInt(sc.nextLine());
 			
-			
 			while (sc.hasNextLine()) {
 				String data = sc.nextLine();
 				String[] splited= data.split(" ", 0);
@@ -42,12 +41,12 @@ public class Baseball {
 			}
 			sc.close();
 
+
+			// On trie teams dans l'ordre décroissant du (nombre de victoires + nombre de matchs à jouer)
 			Collections.sort(this.teams, new Comparator<Team>() {
 				@Override
 				public int compare(Team a, Team b) {
-					return (a.wins + a.matchsToPlay) > (b.wins + b.matchsToPlay) ? - 1
-							: (a.wins + a.matchsToPlay) < (b.wins + b.matchsToPlay) ? 1
-							: 0;
+					return Integer.compare(b.wins + b.matchsToPlay, a.wins + a.matchsToPlay);
 				}
 			});
 
@@ -63,12 +62,6 @@ public class Baseball {
 		return this.teams;
 	}
 	
-	public void printTeams() {
-		for (int i=0;i<teams.size();i++) {
-			getTeams().get(i).printTeam();
-		}
-	}
-
 	public final class Team {
 		public int nbOfTeams;
 		
@@ -78,7 +71,7 @@ public class Baseball {
 		public int matchsToPlay;
 		public boolean eliminee = false;
 		
-		public ArrayList<Integer> matchToPlayAgainst = new ArrayList<>();
+		public ArrayList<Integer> matchToPlayAgainst;
 		
 		public  Team(int nbOfTeams_,int id_, String name_, int wins_, int matchsToPlay_, ArrayList<Integer> matchToPlayAgainst_) {
 			this.nbOfTeams = nbOfTeams_;
@@ -88,17 +81,6 @@ public class Baseball {
 			this.matchsToPlay = matchsToPlay_;
 			this.matchToPlayAgainst = (ArrayList<Integer>) matchToPlayAgainst_.clone();
 		}
-		
-		public void printTeam() {
-			System.out.println("Il y a " + this.nbOfTeams + " Equipes");
-			System.out.println("Equipe numéro :  " + this.id + " Nom : " + this.name + " Nombre de victoires : " + this.wins + " Matchs restants à jouer : " + this.matchsToPlay);
-			
-			for (int i=0;i<this.matchToPlayAgainst.size();i++) {
-				System.out.println("Nombre de matchs à jouer contre l'équipe " + (i+1) + " : " + this.matchToPlayAgainst.get(i));
-			}
-			System.out.println(" ");
-		}
-
 	}
 
 	public void testEliminationEquipe(Team k){
@@ -112,21 +94,13 @@ public class Baseball {
 
 	public void testEliminationToutesEquipes(){
 
-		for (Team t: this.getTeams()){
-			testEliminationEquipe(t);
-		}
-
-	}
-
-	public void testDeuxEliminationToutesEquipes(){
-
 		for(int i = 0; i < this.getTeams().size(); i++){
 			// On se doit de tester au minimum une équipe
 			if (i == 0){
 				testEliminationEquipe(getTeams().get(i));
 			}
 			// Si l'équipe précédente a été éliminée, on peut déduire que l'équipe actuelle le sera aussi
-			else if (this.getTeams().get(i-1).eliminee == true){
+			else if (this.getTeams().get(i - 1).eliminee){
 				System.out.println(getTeams().get(i-1).name + " a été éliminée, donc : ");
 				getTeams().get(i).eliminee = true;
 			}
@@ -148,8 +122,7 @@ public class Baseball {
 		String name = input.nextLine();
 		Baseball b = new Baseball("tests/" + name +".txt");
 
-		//b.testEliminationEquipe(b.getTeams().get(3));
-		b.testDeuxEliminationToutesEquipes();
+		b.testEliminationToutesEquipes();
 
 
 

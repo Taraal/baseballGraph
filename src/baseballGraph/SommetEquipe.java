@@ -1,7 +1,5 @@
 package baseballGraph;
 
-import javax.swing.text.StyleContext;
-
 public class SommetEquipe  extends Sommet{
     public Baseball.Team equipe;
 

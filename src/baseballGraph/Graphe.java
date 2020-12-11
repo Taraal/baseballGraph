@@ -8,22 +8,24 @@ public class Graphe {
     Baseball.Team equipeCourante;
     boolean valid;
 
-    ArrayList<Sommet> sommets = new ArrayList<Sommet>();
-    ArrayList<Arete> aretes = new ArrayList<Arete>();
+    ArrayList<Sommet> sommets = new ArrayList<>();
+    ArrayList<Arete> aretes = new ArrayList<>();
 
     public Graphe(ArrayList<Baseball.Team> grapheequipes, Baseball.Team equipeCourante){
 
         this.equipeCourante = equipeCourante;
 
-        ArrayList<Baseball.Team> equipes = new ArrayList<Baseball.Team>();
-        equipes.addAll(grapheequipes);
+        ArrayList<Baseball.Team> equipes = new ArrayList<>(grapheequipes);
         equipes.remove(equipeCourante);
         // Création de la source
         sommets.add(new Sommet(0, 0));
 
+        // Création des sommets Equipe
         for(Baseball.Team i : equipes){
             sommets.add(new SommetEquipe(i, 0, 0));
         }
+
+        // Création des sommets Paire
         for (Baseball.Team i : equipes){
             for (Baseball.Team j : equipes){
                 SommetPaire sp = new SommetPaire(i, j, 0, 0);
@@ -52,6 +54,8 @@ public class Graphe {
             // Les sommets Paire sont reliés à la source par un arc de capacité g_{ij}
             if (sommets.get(i) instanceof SommetPaire){
                 int capacite = ((SommetPaire) sommets.get(i)).equipe1.matchToPlayAgainst.get(((SommetPaire) sommets.get(i)).equipe2.id - 1);
+
+                // Si l'arc a une capacité négative, le graphe n'est pas bon, l'équipe est éliminée
                 if(capacite >= 0 ) {
                     this.addArete(source, i, capacite);
                 }
@@ -60,6 +64,8 @@ public class Graphe {
             // Les sommets Equipe sont reliés au puits par un arc de capacité (w_k + g_k - w_i)
             else if (sommets.get(i) instanceof SommetEquipe){
                 int capacite = equipeCourante.wins + equipeCourante.matchsToPlay - ((SommetEquipe) sommets.get(i)).equipe.wins;
+
+                // Si l'arc a une capacité négative, le graphe n'est pas bon, l'équipe est éliminée
                 if(capacite >= 0) {
                     this.addArete(i, puits, capacite);
                 }
@@ -127,19 +133,19 @@ public class Graphe {
         int hauteur_min = Integer.MAX_VALUE;
 
         // On cherche la hauteur minimum des voisins
-        for (int i = 0; i < aretes.size(); i++){
+        for (Arete arete : aretes) {
 
 
-            if(aretes.get(i).debut == u){
+            if (arete.debut == u) {
 
                 // Si elle est déjà à sa capacité max, on l'ignore
-                if(aretes.get(i).flot == aretes.get(i).capacite){
+                if (arete.flot == arete.capacite) {
                     continue;
                 }
 
                 // On met à jour la hauteur minimum
-                if(sommets.get(aretes.get(i).fin).hauteur < hauteur_min){
-                    hauteur_min = sommets.get(aretes.get(i).fin).hauteur;
+                if (sommets.get(arete.fin).hauteur < hauteur_min) {
+                    hauteur_min = sommets.get(arete.fin).hauteur;
 
                     // On élève le sommet u
                     sommets.get(u).hauteur = hauteur_min + 1;
@@ -162,6 +168,7 @@ public class Graphe {
     }
 
     int sommetDebordant(ArrayList<Sommet> sommets, int s, int t){
+        // On retourne l'index d'un sommet débordant s'il existe
         for(int i = 1; i<sommets.size() - 1; i++){
             if (i != s && i != t && sommets.get(i).excedent > 0){
                 return i;
@@ -176,9 +183,9 @@ public class Graphe {
         int u = aretes.get(i).fin;
         int v = aretes.get(i).debut;
 
-        for (int j = 0; j < aretes.size(); j++){
-            if (aretes.get(j).fin == v && aretes.get(j).debut == u){
-                aretes.get(j).flot -= flot;
+        for (Arete arete : aretes) {
+            if (arete.fin == v && arete.debut == u) {
+                arete.flot -= flot;
                 return;
             }
         }
@@ -192,19 +199,23 @@ public class Graphe {
     }
 
     int flotMaximal(int s, int t){
+        // Initialisation du préflot
         preflot(s);
-        long startTime = System.currentTimeMillis();
+        // Tant qu'il y a des sommets débordants, on continue l'algorithme
         while(sommetDebordant(sommets, s, t ) != -1){
             int u = sommetDebordant(sommets, s, t);
             if (!pousser(u)){
                 elever(u);
             }
         }
+        // Le flot maximal est l'excédent du puits après l'algorithme
         return  sommets.get(t).excedent;
     }
 
     public boolean equipeEliminee(){
 
+        // Après l'algorithme, si toutes les arêtes partant de la source ont atteint leur capacité max, alors l'équipe
+        // n'est pas éliminée
         if(valid) {
             boolean eliminee = false;
             for(Arete a: aretes){
